@@ -1,0 +1,2 @@
+test: file
+other: !include test-simple.yml

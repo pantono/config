@@ -1,0 +1,13 @@
+parameters:
+  level: 6
+  paths:
+    - src
+  bootstrapFiles:
+    - vendor/autoload.php
+  excludePaths:
+    - "*/Tests/*"
+  checkGenericClassInNonGenericObjectType: false
+  ignoreErrors:
+    - message: '#^Method (.*)::(.*) has parameter (.*) with no value type specified in iterable type array.$#'
+    - message: '#^Method (.*)::(.*) return type has no value type specified in iterable type array.$#'
+    - message: '#^Property (.*)::(.*) type has no value type specified in iterable type array.$#'
