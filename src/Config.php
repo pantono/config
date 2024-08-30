@@ -42,7 +42,7 @@ class Config implements ConfigInterface
 
     public function getConfigForType(string $type): FileInterface
     {
-        $allowedTypes = ['config', 'endpoints', 'services', 'validators', 'security_gates', 'event_listeners', 'cli_commands'];
+        $allowedTypes = ['config', 'endpoints', 'services', 'validators', 'security_gates', 'event_listeners', 'cli_commands', 'queue_tasks'];
         if (!in_array($type, $allowedTypes)) {
             throw new \RuntimeException('Invalid config type ' . $type);
         }
