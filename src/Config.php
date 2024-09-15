@@ -22,8 +22,8 @@ class Config implements ConfigInterface
     public function __construct(EventDispatcher $eventDispatcher, AbstractAdapter $cache)
     {
         $this->cache = $cache;
-        $this->paths[] = __DIR__ . '/../../conf';
         $this->paths[] = ApplicationHelper::getApplicationRoot();
+        $this->paths[] = __DIR__ . '/../../conf';
         $this->eventDispatcher = $eventDispatcher;
         $event = new RegisterConfigPathEvent();
         $this->eventDispatcher->dispatch($event);
