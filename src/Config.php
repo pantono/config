@@ -22,8 +22,6 @@ class Config implements ConfigInterface
     public function __construct(EventDispatcher $eventDispatcher, AbstractAdapter $cache)
     {
         $this->cache = $cache;
-        $this->paths[] = ApplicationHelper::getApplicationRoot();
-        $this->paths[] = __DIR__ . '/../../conf';
         $this->eventDispatcher = $eventDispatcher;
         $event = new RegisterConfigPathEvent();
         $this->eventDispatcher->dispatch($event);
@@ -48,7 +46,7 @@ class Config implements ConfigInterface
         }
         $extensions = ['yml', 'ini', 'php'];
         $data = [];
-        foreach ($this->paths as $path) {
+        foreach ($this->getPaths() as $path) {
             $filePath = sprintf('%s/%s', $path, $type);
             foreach ($extensions as $extension) {
                 $envFullPath = sprintf('%s.%s.%s', $filePath, ApplicationHelper::getEnv(), $extension);
@@ -124,5 +122,12 @@ class Config implements ConfigInterface
         }
 
         throw new \RuntimeException('Unable to parse config file ' . $path);
+    }
+
+    public function getPaths(): array
+    {
+        $paths = $this->paths;
+        $paths[] = ApplicationHelper::getApplicationRoot();
+        return $paths;
     }
 }
