@@ -127,7 +127,7 @@ class Config implements ConfigInterface
     public function getPaths(): array
     {
         $paths = $this->paths;
-        $paths[] = ApplicationHelper::getApplicationRoot();
+        $paths[] = ApplicationHelper::getApplicationRoot() . '/conf';
         return $paths;
     }
 }
