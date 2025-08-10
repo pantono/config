@@ -10,16 +10,16 @@ use Pantono\Config\Parser\IniFileParser;
 use Pantono\Contracts\Config\ConfigInterface;
 use Pantono\Contracts\Config\FileInterface;
 use Symfony\Component\Yaml\Tag\TaggedValue;
-use Symfony\Component\Cache\Adapter\AbstractAdapter;
 use Pantono\Utilities\CacheHelper;
+use Pantono\Contracts\Application\Cache\ApplicationCacheInterface;
 
 class Config implements ConfigInterface
 {
     private array $paths = [];
     private EventDispatcher $eventDispatcher;
-    private AbstractAdapter $cache;
+    private ApplicationCacheInterface $cache;
 
-    public function __construct(EventDispatcher $eventDispatcher, AbstractAdapter $cache)
+    public function __construct(EventDispatcher $eventDispatcher, ApplicationCacheInterface $cache)
     {
         $this->cache = $cache;
         $this->eventDispatcher = $eventDispatcher;
@@ -78,7 +78,7 @@ class Config implements ConfigInterface
         $ext = $fileInfo['extension'] ?? '';
         $modifiedTime = filemtime($path);
         if ($ext === 'yml') {
-            $data = $this->cache->get(CacheHelper::cleanCacheKey($path . $env . $modifiedTime), function () use ($path) {
+            $data = $this->cache->getCallback(CacheHelper::cleanCacheKey($path . $env . $modifiedTime), function () use ($path) {
                 $fileData = file_get_contents($path);
                 if ($fileData === false) {
                     throw new \RuntimeException('Unable to get contents of ' . $path);
@@ -108,7 +108,7 @@ class Config implements ConfigInterface
             return $data;
         }
         if ($ext === 'ini') {
-            return $this->cache->get(CacheHelper::cleanCacheKey($path . $env . $modifiedTime), function () use ($path) {
+            return $this->cache->getCallback(CacheHelper::cleanCacheKey($path . $env . $modifiedTime), function () use ($path) {
                 $fileData = file_get_contents($path);
                 if ($fileData === false) {
                     throw new \RuntimeException('Unable to get contents of ' . $path);
