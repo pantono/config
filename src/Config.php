@@ -77,6 +77,9 @@ class Config implements ConfigInterface
         $fileInfo = pathinfo($path);
         $ext = $fileInfo['extension'] ?? '';
         $modifiedTime = filemtime($path);
+        if (file_exists(ApplicationHelper::getApplicationRoot() . '/.env')) {
+            $modifiedTime .= filemtime(ApplicationHelper::getApplicationRoot() . '/.env');
+        }
         if ($ext === 'yml') {
             $data = $this->cache->getCallback(CacheHelper::cleanCacheKey($path . $env . $modifiedTime), function () use ($path) {
                 $fileData = file_get_contents($path);
