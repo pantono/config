@@ -39,7 +39,7 @@ class File implements FileInterface
         return $data[$key] ?? $default;
     }
 
-    public function getBooleanValue(string $key, bool $default = false): bool
+    public function getBooleanValue(string $key, ?bool $default = false): bool
     {
         $value = $this->getValue($key, $default);
 
