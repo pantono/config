@@ -39,6 +39,16 @@ class File implements FileInterface
         return $data[$key] ?? $default;
     }
 
+    public function getBooleanValue(string $key, bool $default = false): bool
+    {
+        $value = $this->getValue($key, $default);
+
+        if ($value === 'true' || $value === '1' || $value === 1 || $value === true) {
+            return true;
+        }
+        return false;
+    }
+
     public function offsetExists(mixed $offset): bool
     {
         return isset($this->data[$offset]);
