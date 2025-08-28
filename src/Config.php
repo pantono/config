@@ -148,9 +148,19 @@ class Config implements ConfigInterface
             return $value;
         }
 
-        return preg_replace_callback('/\$\{([A-Za-z_][A-Za-z0-9_]*)}/', function ($matches) {
+        return preg_replace_callback('/\$\{([A-Za-z_][A-Za-z0-9_]*)(?::([^}]*))?}/', function ($matches) {
             $var = $matches[1];
-            return array_key_exists($var, $_ENV) ? (string)$_ENV[$var] : $matches[0];
+            $default = $matches[2] ?? null;
+
+            if (array_key_exists($var, $_ENV)) {
+                return (string) $_ENV[$var];
+            }
+
+            if ($default !== null) {
+                return $default;
+            }
+
+            return $matches[0];
         }, $value);
     }
 }
