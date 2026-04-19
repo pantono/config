@@ -38,10 +38,43 @@ class Config implements ConfigInterface
         $this->paths[] = $path;
     }
 
+    /**
+     * @return string[]
+     */
+    public function getAllowedConfigTypes(): array
+    {
+        return ['config', 'endpoints', 'services', 'validators', 'security_gates', 'event_listeners', 'cli_commands', 'queue_tasks'];
+    }
+
+    public function compileConfig(string $type): void
+    {
+        if (!in_array($type, $this->getAllowedConfigTypes())) {
+            throw new \RuntimeException('Invalid config type ' . $type);
+        }
+        $path = ApplicationHelper::getApplicationRoot() . '/cache/compiled_config' . $type . '.php';
+        $data = $this->getConfigData($type);
+        file_put_contents($path, '<?php return ' . var_export($data, true) . ';');
+    }
+
     public function getConfigForType(string $type): FileInterface
     {
-        $allowedTypes = ['config', 'endpoints', 'services', 'validators', 'security_gates', 'event_listeners', 'cli_commands', 'queue_tasks'];
-        if (!in_array($type, $allowedTypes)) {
+        if (!in_array($type, $this->getAllowedConfigTypes())) {
+            throw new \RuntimeException('Invalid config type ' . $type);
+        }
+        $compiledPath = $path = ApplicationHelper::getApplicationRoot() . '/cache/compiled_config' . $type . '.php';
+        if (file_exists($compiledPath)) {
+            return new File(include $compiledPath);
+        }
+        $data = $this->getConfigData($type);
+        return new File($data);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function getConfigData(string $type): array
+    {
+        if (!in_array($type, $this->getAllowedConfigTypes())) {
             throw new \RuntimeException('Invalid config type ' . $type);
         }
         $extensions = ['yml', 'ini', 'php'];
@@ -60,7 +93,7 @@ class Config implements ConfigInterface
                 }
             }
         }
-        return new File($data);
+        return $data;
     }
 
     public function getApplicationConfig(): FileInterface
@@ -153,7 +186,7 @@ class Config implements ConfigInterface
             $default = $matches[2] ?? null;
 
             if (array_key_exists($var, $_ENV)) {
-                return (string) $_ENV[$var];
+                return (string)$_ENV[$var];
             }
 
             if ($default !== null) {
