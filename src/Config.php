@@ -141,7 +141,7 @@ class Config implements ConfigInterface
                     }
                 }
             }
-            return $this->interpolateEnv($data);
+            return ApplicationHelper::interpolateEnv($data);
         }
         if ($ext === 'ini') {
             return $this->cache->getCallback(CacheHelper::cleanCacheKey($path . $env . $modifiedTime), function () use ($path) {
@@ -150,11 +150,11 @@ class Config implements ConfigInterface
                     throw new \RuntimeException('Unable to get contents of ' . $path);
                 }
                 $parser = new IniFileParser(ApplicationHelper::getEnv());
-                return $this->interpolateEnv($parser->parse($fileData));
+                return ApplicationHelper::interpolateEnv($parser->parse($fileData));
             });
         }
         if ($ext === 'php') {
-            return $this->interpolateEnv(include $path);
+            return ApplicationHelper::interpolateEnv(include $path);
         }
 
         throw new \RuntimeException('Unable to parse config file ' . $path);
@@ -165,35 +165,5 @@ class Config implements ConfigInterface
         $paths = $this->paths;
         $paths[] = ApplicationHelper::getApplicationRoot() . '/conf';
         return $paths;
-    }
-
-    private function interpolateEnv(mixed $value): mixed
-    {
-        if (is_array($value)) {
-            $out = [];
-            foreach ($value as $k => $v) {
-                $out[$k] = $this->interpolateEnv($v);
-            }
-            return $out;
-        }
-
-        if (!is_string($value)) {
-            return $value;
-        }
-
-        return preg_replace_callback('/\$\{([A-Za-z_][A-Za-z0-9_]*)(?::([^}]*))?}/', function ($matches) {
-            $var = $matches[1];
-            $default = $matches[2] ?? null;
-
-            if (array_key_exists($var, $_ENV)) {
-                return (string)$_ENV[$var];
-            }
-
-            if ($default !== null) {
-                return $default;
-            }
-
-            return $matches[0];
-        }, $value);
     }
 }
